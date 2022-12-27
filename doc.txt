@@ -1,0 +1,129 @@
+Vue simplifiée:
+XYanis	X Position
+Amélia	X Menu
+Amélia		X MenuVue
+Amélia		X MenuControlleur
+Yanis	X Plateau<T>
+Yanis		X Plateau<Integer> -> PlateauDomino
+Yanis		X Plateau<TypeCaseCarcassonne> -> PlateauCarcassonne
+Yanis	X PlateauVue<T>
+Yanis		X -> PlateauVueDomino
+Yanis		X -> PlateauVueCarcassonne
+XAmélia	X enum TypeCaseCarcassonne
+XAmélia	X Tuile<T>
+XAmélia		X -> TuileDomino
+XAmélia		X -> TuileCarcassone
+Amélia	X abstract class Joueur<T>
+Amélia		X -> abstract class JoueurDomino
+Amélia			X -> JoueurDominoHumain
+			X -> JoueurDominoIA
+Amélia		X -> abstract class JoueurCarcassonne
+Amélia			X -> JoueurCarcassonneHumain
+			X -> JoueurCarcassonneIA
+XYanis	X abstract class CompteurDePoints<T>
+XYanis		X -> CompteurDePointsDomino
+Yanis		X -> CompteurDePointsCarcassonne
+
+
+
+Classes:
+	Position {
+		public int x;
+		public int y;
+		public boolean equals(Object autre);
+		public int hashCode();
+		public Position[] getVoisins();
+	}
+	Menu {
+		public static enum Game { DOMINO, CARCASSONNE }
+		public Game game;
+		public static enum TypeJoueur { IA, HUMAN }
+		public java.util.arrayList<TypeJoueur> joueurs;
+	}
+		MenuVue {
+		}
+		MenuControlleur {
+			private Menu modele;
+			private MenuVue vue;
+
+			private void on_game_button(Menu.Game game);
+			private void on_player_button(int player, Menu.TypeJoueur joueur);
+			private void on_player_remove(int player);
+			private void on_player_add();
+		}
+	abstract Plateau<T> {
+		protected final java.util.Map<Position, Tuile<T>> tuiles;
+		public boolean poser(Tuile<T> tuile);
+		public Tuile<T> get_tuile(Position p);
+		public void iterer_tuiles(BiConsumer<Position, Tuile<T>> f);
+		public boolean adjacente(T[] t1, T[] t2);
+		public boolean existeTuile(Position p);
+		public abstract Tuile<T> piocher();
+	}
+		Plateau<Integer> -> PlateauDomino {
+			public boolean poser(Position position, Tuile<Integer> tuile);
+			public void iterer_tuiles(BiConsumer<Position, Tuile<Integer>> f);
+		}
+		Plateau<TypeCaseCarcassonne> -> PlateauCarcassonne {
+			public boolean poser(Position position, Tuile<TypeCaseCarcassonne> tuile);
+			public void iterer_tuiles(BiConsumer<Position, Tuile<TypeCaseCarcassonne>> f);
+		}
+	PlateauVue<T> {
+	}
+		-> PlateauVueDomino {
+		}
+		-> PlateauVueCarcassonne {
+		}
+	enum TypeCaseCarcassonne {
+		HERBE, CHEMIN, VILLE, CARREFOUR, ABBAYE
+	}
+	Tuile<T> {
+		public final T[] haut; // 3 éléments
+		public final T[] bas; // 3 éléments
+		public final T[] gauche; // 3 éléments
+		public final T[] droite; // 3 éléments
+		public Tuile(T[] haut, T[] bas, T[] gauche, T[] droite);
+	}
+		-> TuileDomino
+		-> TuileCarcassone {
+			public final Joueur poseur_de_pion;
+			public final TypeCaseCarcassonne milieu;
+		}
+	abstract class Joueur<T> {
+		protected final Plateau<T> plateau; // i.e. modele
+		protected final PlateauVue<T> vue;
+
+		private final CompteurDePoints<T> compteur;
+		public final int num;
+		private static int num_players;
+		protected boolean play(Position p, Tuile<T> t);
+		abstract public void play();
+	}
+		-> abstract class JoueurDomino {
+		}
+			-> JoueurDominoHumain {
+				public void play();
+			}
+			-> JoueurDominoIA {
+				public void play();
+			}
+		-> abstract class JoueurCarcassonne {
+		}
+			-> JoueurCarcassonneHumain {
+				public void play();
+			}
+			-> JoueurCarcassonneIA {
+				public void play();
+			}
+	abstract class CompteurDePoints<T> {
+		protected int scores[];
+		protected void add_points(Joueur<T> j, int points);
+		public int get_points(Joueur<T> j);
+		abstract public void compter(Joueur<T> poseur, Position p, Tuile<T> t, Plateau<T> plateau);
+	}
+		-> CompteurDePointsDomino {
+			public void compter(Joueur<T> poseur, Position p, Tuile<Integer> t, Plateau<Integer> plateau);
+		}
+		-> CompteurDePointsCarcassonne {
+			public void compter(Joueur<T> poseur, Position p, Tuile<TypeCaseCarcassonne> t, Plateau<TypeCarcassonne> plateau);
+		}
